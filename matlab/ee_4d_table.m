@@ -1,5 +1,7 @@
 %*******************************************************************************************
 % Parámetros del modelo 4D
+
+% Generación de lookup tables para una PMSM ideal
 %*******************************************************************************************
 
 % Ideal PMSM parameters
@@ -22,7 +24,7 @@ RPM = 100;
 iA = linspace(-250,250,5);
 iB = iA;
 iC = iA;
-X = pi/180*linspace(0,360/N,180/N+1);
+X = pi/180*linspace(0,360/N,180/N+1); %[rad]
 %E_Sweepings
 
 %B_OutputMatrix F

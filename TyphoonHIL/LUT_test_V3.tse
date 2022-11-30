@@ -1,0 +1,514 @@
+version = 4.2
+
+//
+// Saved by sw version: 2022.1 SP1
+// Save timestamp: 28-Oct-2022 @ 09:00:51 PM
+//
+
+model "LUT_test_V3" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 2
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        reset_analog_outputs_on_sim_stop = True
+        reset_digital_outputs_on_sim_stop = True
+        vhil_adio_loopback = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
+        ground_scope_core = False
+        cce_platform = "generic"
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+        tunable_params = "component defined"
+        sp_compiler_type = "C compiler"
+        sig_stim = "off"
+        export_resource_list = ""
+        export_dependency_list = ""
+        export_out_file = ""
+        export_lock_top_level = True
+        export_encrypt_library = True
+        export_encrypt_resources = True
+    }
+
+    component Subsystem Root {
+        component gen_3D_lookup_table "iD LUT" {
+            execution_rate = "Ts"
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_id"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 7992, 7112
+        ]
+
+        component gen_probe "Probe iD" {
+        }
+        [
+            position = 8272, 7112
+        ]
+
+        component gen_3D_lookup_table "iQ LUT" {
+            execution_rate = "Ts"
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_iq"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 7992, 7352
+        ]
+
+        component gen_probe "Probe iQ" {
+        }
+        [
+            position = 8272, 7352
+        ]
+
+        component gen_3D_lookup_table "LUT Te" {
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "idVec"
+            in_vec_z = "iqVec"
+            out_vec_f_xyz = "LUT_Te"
+        }
+        [
+            position = 7936, 7536
+        ]
+
+        component gen_probe "Probe Te" {
+        }
+        [
+            position = 8064, 7536
+        ]
+
+        component src_scada_input "SCADA Input wr" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 6824, 7200
+        ]
+
+        component src_scada_input "SCADA Input v_d" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7400, 7080
+        ]
+
+        component src_scada_input "SCADA Input v_q" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7288, 7120
+        ]
+
+        component gen_probe "Probe thetar" {
+        }
+        [
+            position = 7384, 6904
+        ]
+
+        component gen_c_function "C function Thetar" {
+            global_variables = "real thetar_deg_ant;real wr_rad_s;"
+            init_fnc = "/*Begin code section*/
+thetar_deg_ant = 0;
+/*End code section*/"
+            input_terminals = "real wr_rpm;"
+            input_terminals_dimensions = "inherit"
+            input_terminals_feedthrough = "True"
+            input_terminals_show_labels = "False"
+            output_fnc = "/*Begin code section*/
+wr_rad_s = wr_rpm*2*pi/60;
+thetar_deg = thetar_deg_ant + wr_rad_s*Ts*180/pi;
+if (thetar_deg > 360/Npp/3) 
+    {
+        thetar_deg = thetar_deg - 360/Npp/3;
+    }
+/*End code section*/"
+            output_terminals = "real thetar_deg;"
+            output_terminals_dimensions = "inherit"
+            output_terminals_feedthrough = "True"
+            output_terminals_show_labels = "False"
+            parameters = "real Ts;real Npp;real pi;"
+            update_fnc = "/*Begin code section*/
+thetar_deg_ant = thetar_deg;
+/*End code section*/"
+        }
+        [
+            position = 7056, 6968
+            size = 48, 48
+        ]
+
+        component gen_c_function "C function phi_d" {
+            global_variables = "real phi_d_ant;real phi_q_ant;real we;"
+            init_fnc = "/*Begin code section*/
+phi_d_ant = 0;
+phi_q_ant = 0;
+/*End code section*/"
+            input_terminals = "real v_d;inherit v_q;inherit i_d;inherit i_q;inherit wr;"
+            input_terminals_dimensions = "inherit;inherit;inherit;inherit;inherit"
+            input_terminals_feedthrough = "True;True;True;True;True"
+            input_terminals_show_labels = "False;False;False;False;False"
+            output_fnc = "/*Begin code section*/
+we = Npp*wr*2*pi/60;
+phi_d = phi_d_ant + Ts*(v_d - Rs*i_d + we*phi_q);
+phi_q = phi_q_ant + Ts*(v_q - Rs*i_q - we*phi_d);
+/*End code section*/"
+            output_terminals = "real phi_d;inherit phi_q;"
+            output_terminals_dimensions = "inherit;inherit"
+            output_terminals_feedthrough = "True;True"
+            output_terminals_show_labels = "False;False"
+            parameters = "real Ts;real Npp;real pi;real Rs;"
+            update_fnc = "/*Begin code section*/
+phi_d_ant = phi_d;
+phi_q_ant = phi_q;
+/*End code section*/"
+        }
+        [
+            position = 7568, 7160
+            size = 144, 216
+        ]
+
+        component tm_delay "Unit Delay1" {
+        }
+        [
+            position = 8080, 7112
+        ]
+
+        component tm_delay "Unit Delay2" {
+        }
+        [
+            position = 8072, 7352
+        ]
+
+        tag Goto1 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 8216, 7040
+            size = 60, 20
+        ]
+
+        tag Goto2 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 8216, 7296
+            size = 60, 20
+        ]
+
+        tag From2 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7400, 7200
+            size = 60, 20
+        ]
+
+        tag Goto3 {
+            value = "phi_d"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7760, 7072
+            size = 60, 20
+        ]
+
+        tag Goto4 {
+            value = "phi_q"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7760, 7216
+            size = 60, 20
+        ]
+
+        tag From5 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7816, 7576
+            size = 60, 20
+        ]
+
+        tag From6 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7400, 7160
+            size = 60, 20
+        ]
+
+        tag From7 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7816, 7536
+            size = 60, 20
+        ]
+
+        junction Junction4 sp
+        [
+            position = 7840, 7112
+        ]
+
+        junction Junction5 sp
+        [
+            position = 7824, 7368
+        ]
+
+        junction Junction27 sp
+        [
+            position = 7688, 7112
+        ]
+
+        junction Junction29 sp
+        [
+            position = 7240, 6968
+        ]
+
+        junction Junction30 sp
+        [
+            position = 7896, 7096
+        ]
+
+        junction Junction31 sp
+        [
+            position = 7904, 7336
+        ]
+
+        junction Junction32 sp
+        [
+            position = 6976, 7200
+        ]
+
+        junction Junction33 sp
+        [
+            position = 7688, 7248
+        ]
+
+        junction Junction34 sp
+        [
+            position = 8144, 7112
+        ]
+
+        junction Junction35 sp
+        [
+            position = 8136, 7352
+        ]
+
+        connect "LUT Te.value" "Probe Te.in" as Connection554
+        connect "iD LUT.addr_y" Junction4 as Connection609
+        connect Junction4 "iQ LUT.addr_y" as Connection610
+        [
+            breakpoints = 7840, 7112; 7840, 7224
+        ]
+        connect "iD LUT.addr_z" Junction5 as Connection613
+        [
+            breakpoints = 7824, 7128; 7824, 7128
+        ]
+        connect Junction5 "iQ LUT.addr_z" as Connection614
+        [
+            breakpoints = 7824, 7368
+        ]
+        connect "LUT Te.addr_z" From5 as Connection745
+        connect "LUT Te.addr_y" From7 as Connection746
+        connect Junction4 Junction27 as Connection806
+        [
+            breakpoints = 7840, 7112; 7840, 7112
+        ]
+        connect Junction27 Goto3 as Connection807
+        [
+            breakpoints = 7688, 7112; 7688, 7112; 7688, 7112; 7688, 7080
+        ]
+        connect "C function phi_d.phi_d" Junction27 as Connection808
+        connect "C function phi_d.v_d" "SCADA Input v_d.out" as Connection809
+        connect "C function phi_d.i_d" From6 as Connection810
+        connect "C function Thetar.thetar_deg" Junction29 as Connection820
+        connect Junction29 "Probe thetar.in" as Connection821
+        [
+            breakpoints = 7232, 6968; 7232, 6968; 7232, 6904; 7248, 6904
+        ]
+        connect "iD LUT.addr_x" Junction30 as Connection823
+        connect Junction30 Junction29 as Connection824
+        [
+            breakpoints = 7896, 7096; 7896, 6968
+        ]
+        connect "iQ LUT.addr_x" Junction31 as Connection826
+        connect Junction31 Junction30 as Connection827
+        connect "LUT Te.addr_x" Junction31 as Connection828
+        connect "SCADA Input v_q.out" "C function phi_d.v_q" as Connection830
+        connect From2 "C function phi_d.i_q" as Connection831
+        connect "SCADA Input wr.out" Junction32 as Connection833
+        connect Junction32 "C function Thetar.wr_rpm" as Connection834
+        [
+            breakpoints = 6968, 7200; 6976, 7200
+        ]
+        connect "C function phi_d.wr" Junction32 as Connection835
+        connect "C function phi_d.phi_q" Junction33 as Connection840
+        connect Junction33 Junction5 as Connection841
+        [
+            breakpoints = 7688, 7328; 7688, 7368
+        ]
+        connect Goto4 Junction33 as Connection842
+        connect "iD LUT.value" "Unit Delay1.in" as Connection844
+        connect Goto1 Junction34 as Connection845
+        [
+            breakpoints = 8136, 7040; 8136, 7112
+        ]
+        connect Junction34 "Probe iD.in" as Connection846
+        [
+            breakpoints = 8144, 7112
+        ]
+        connect "Unit Delay1.out" Junction34 as Connection847
+        connect "Unit Delay2.in" "iQ LUT.value" as Connection849
+        connect Goto2 Junction35 as Connection850
+        [
+            breakpoints = 8136, 7304; 8136, 7352
+        ]
+        connect Junction35 "Probe iQ.in" as Connection851
+        [
+            breakpoints = 8136, 7352
+        ]
+        connect "Unit Delay2.out" Junction35 as Connection852
+    }
+
+    default {
+        gen_3D_lookup_table {
+            in_vec_x = "np.arange(0,3)"
+            in_vec_y = "np.arange(-1,1)"
+            in_vec_z = "np.arange(-1,1)"
+            out_vec_f_xyz = "[[[1.0, 4.0], [2.0, 5.0]], [[3.0, 6.0], [1.0, 4.0]], [[2.0, 5.0], [3.0, 6.0]]]"
+            table_impl = "Equidistant"
+            ext_mode = "Clip"
+            execution_rate = "inherit"
+        }
+
+        gen_c_function {
+            input_terminals = "real in;"
+            input_terminals_show_labels = "False;"
+            input_terminals_feedthrough = "True;"
+            input_terminals_dimensions = "inherit;"
+            output_terminals = "real out;"
+            output_terminals_show_labels = "False;"
+            output_terminals_feedthrough = "True;"
+            output_terminals_dimensions = "inherit;"
+            output_fnc = ""
+            update_fnc = ""
+            init_fnc = ""
+            global_variables = ""
+            parameters = ""
+            execution_rate = "inherit"
+        }
+
+        gen_probe {
+            addr = "0"
+            override_signal_name = "False"
+            signal_name = ""
+            signal_type = "generic"
+            streaming_en = "False"
+            streaming_er_idx = "0"
+            execution_rate = "inherit"
+        }
+
+        src_scada_input {
+            addr = "0"
+            format = "real"
+            override_signal_name = "False"
+            signal_name = ""
+            signal_type = "real"
+            min = "-1e6"
+            max = "1e6"
+            def_value = "0"
+            unit = " "
+            execution_rate = "100e-6"
+        }
+
+        tm_delay {
+            init_value = "0"
+            signal_out_type = "inherit"
+            execution_rate = "inherit"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        Ts = 1e-5
+        
+        pi = 3.1416
+        
+        # Load LUT from .npz python file
+        data = np.load(r'C:\Users\crist\workspace\usemac\pmsm_dev\TyphoonHIL\LUT_prueba.npz')
+        LUT_id = data['LUT_id']
+        LUT_iq = data['LUT_iq']
+        LUT_Te = data['LUT_Te']
+        phidVec = data['phidVec']
+        phiqVec = data['phiqVec']
+        thetaVec = data['thetaVec']
+        idVec = data['idVec']
+        iqVec = data['iqVec']
+        
+        Rs = 0.07
+        Npp = 4
+    ENDCODE
+}

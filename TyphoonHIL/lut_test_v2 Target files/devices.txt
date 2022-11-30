@@ -1,0 +1,21 @@
+eCfk7VOFJJ6f9EeyYAWSVz1mNIrQR2BWRtBQv16Wn7J1OLhbCDA+HTuGPejB2HndsrIDXioqPC156aXDsN+OAA==
+{
+  "compilation_timestamp": "2022-11-30 11:34:22",
+  "sw_version": "2022.1 SP1",
+  "devices": [
+    {
+      "device_type": "HIL402",
+      "hw_id": "4deffe5f2b1ae2050dbc819cf2af29362eb75b225f75136785b16a83c5372087",
+      "activation_key": "XBRHE-605L3-NS1QV-WKJDF-46C01",
+      "serial_no": "Virtual device",
+      "license_expiry": "2023-03-31",
+      "maintenance_expiry": null,
+      "supported": true,
+      "not_supported_reason": null,
+      "toolboxes": []
+    }
+  ]
+}
+-----BEGIN SIGNATURE-----
+flo5Rr+oQl1avUdRfxesLbCbEfo85A105yhN6SbOY9dXD/axZv4MngB3jPW9pCTwU55BuXVc5CABoGsqlDiTKO4ziA6SlXYRAU/DK5T5eWz52wLMZviHP4qD+sPTDeYKB9o0F5c658Kbr3+4my68Fagfq41ETebyagVj1LDm9+vgsK9Zm5eeB5K5ahYvYJLUSkBJsneJImN0SUjx1AzqINBZyRxPvy2pX/N/sRP3GibBwQo6dRfqby6M02qYqzJcTf9Ov1+BoK1SHeE7zPCKAKh8NzjHXHCNbPGAMT0+PwuascWSf3y3M5ctYZUHGr5LT5L5RRQvz1GqfFnHZYV9Yg==
+-----END SIGNATURE-----

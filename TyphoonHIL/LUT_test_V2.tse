@@ -1,0 +1,951 @@
+version = 4.2
+
+//
+// Saved by sw version: 2022.1 SP1
+// Save timestamp: 29-Oct-2022 @ 02:18:50 PM
+//
+
+model "lut_test_v2" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 2
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        reset_analog_outputs_on_sim_stop = True
+        reset_digital_outputs_on_sim_stop = True
+        vhil_adio_loopback = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
+        ground_scope_core = False
+        cce_platform = "generic"
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+        tunable_params = "component defined"
+        sp_compiler_type = "C compiler"
+        sig_stim = "off"
+        export_resource_list = ""
+        export_dependency_list = ""
+        export_out_file = ""
+        export_lock_top_level = True
+        export_encrypt_library = True
+        export_encrypt_resources = True
+    }
+
+    component Subsystem Root {
+        component gen_3D_lookup_table "iD LUT" {
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_id"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 8032, 7112
+        ]
+
+        component gen_probe "Probe iD" {
+        }
+        [
+            position = 8272, 7112
+        ]
+
+        component gen_3D_lookup_table "iQ LUT" {
+            execution_rate = "Ts"
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_iq"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 8032, 7352
+        ]
+
+        component gen_probe "Probe iQ" {
+        }
+        [
+            position = 8272, 7352
+        ]
+
+        component gen_3D_lookup_table "LUT Te" {
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "idVec"
+            in_vec_z = "iqVec"
+            out_vec_f_xyz = "LUT_Te"
+        }
+        [
+            position = 8600, 7232
+        ]
+
+        component gen_probe "Probe Te" {
+        }
+        [
+            position = 8728, 7232
+        ]
+
+        component gen_integrator "phi_d integrator" {
+        }
+        [
+            position = 7624, 7112
+        ]
+
+        component gen_integrator "phi_q integrator" {
+            execution_rate = "Ts"
+        }
+        [
+            position = 7624, 7368
+        ]
+
+        component gen_gain Gain1 {
+            gain = "Rs"
+        }
+        [
+            position = 7376, 7112
+        ]
+
+        component gen_gain Gain2 {
+            execution_rate = "Ts"
+            gain = "Rs"
+        }
+        [
+            position = 7384, 7368
+        ]
+
+        component gen_product Product1 {
+        }
+        [
+            position = 7328, 7456
+        ]
+
+        component gen_sum Sum1 {
+            signs = "+-+"
+        }
+        [
+            position = 7520, 7112
+        ]
+
+        component gen_sum Sum2 {
+            execution_rate = "Ts"
+            signs = "+--"
+        }
+        [
+            position = 7520, 7368
+        ]
+
+        component gen_product Product2 {
+        }
+        [
+            position = 7344, 7192
+        ]
+
+        component gen_gain Gain3 {
+            execution_rate = "Ts"
+            gain = "2*pi/60"
+        }
+        [
+            position = 6920, 7200
+        ]
+
+        component gen_gain Gain5 {
+            execution_rate = "Ts"
+            gain = "Npp"
+        }
+        [
+            position = 7032, 7200
+        ]
+
+        component gen_probe "Probe thetar" {
+        }
+        [
+            position = 7176, 6968
+        ]
+
+        component gen_c_function "C function1" {
+            global_variables = "real thetar_deg_ant;"
+            init_fnc = "/*Begin code section*/
+thetar_deg_ant = 0;
+/*End code section*/"
+            input_terminals = "real wr;"
+            input_terminals_dimensions = "inherit"
+            input_terminals_feedthrough = "True"
+            input_terminals_show_labels = "False"
+            output_fnc = "/*Begin code section*/
+thetar_deg = thetar_deg_ant + wr*Ts*180/pi;
+if (thetar_deg > 360/3/Npp) 
+    {
+        thetar_deg = thetar_deg - 360/3/Npp;
+    }
+/*End code section*/"
+            output_terminals = "real thetar_deg;"
+            output_terminals_dimensions = "inherit"
+            output_terminals_feedthrough = "True"
+            output_terminals_show_labels = "False"
+            parameters = "real Ts;real Npp;real pi;"
+            update_fnc = "/*Begin code section*/
+thetar_deg_ant = thetar_deg;
+/*End code section*/"
+        }
+        [
+            position = 7040, 7032
+            size = 48, 48
+        ]
+
+        component gen_probe "Probe iA" {
+        }
+        [
+            position = 8176, 7584
+        ]
+
+        component gen_probe "Probe iB" {
+        }
+        [
+            position = 8176, 7648
+        ]
+
+        component gen_probe "Probe iC" {
+        }
+        [
+            position = 8176, 7712
+        ]
+
+        component gen_c_function "C function Park-1" {
+            input_terminals = "real xd;inherit xq;inherit thetae_rad;"
+            input_terminals_dimensions = "inherit;inherit;inherit"
+            input_terminals_feedthrough = "True;True;True"
+            input_terminals_show_labels = "False;False;False"
+            output_fnc = "/*Begin code section*/
+xa = xd*cos(thetae_rad) - xq*sin(thetae_rad);
+xb = xd*cos(thetae_rad-2*pi/3) - xq*sin(thetae_rad-2*pi/3);
+xc = xd*cos(thetae_rad-4*pi/3) - xq*sin(thetae_rad-4*pi/3);
+/*End code section*/"
+            output_terminals = "real xa;inherit xb;inherit xc;"
+            output_terminals_dimensions = "inherit;inherit;inherit"
+            output_terminals_feedthrough = "True;True;True"
+            output_terminals_show_labels = "False;False;False"
+            parameters = "real Ts;real Npp;real pi;"
+        }
+        [
+            position = 8032, 7648
+            size = 128, 176
+        ]
+
+        component gen_integrator Integrator1 {
+            execution_rate = "Ts"
+        }
+        [
+            position = 6928, 6896
+        ]
+
+        component gen_c_function "C function Park-2" {
+            input_terminals = "real xa;inherit xb;inherit xc;inherit thetae_rad;"
+            input_terminals_dimensions = "inherit;inherit;inherit;inherit"
+            input_terminals_feedthrough = "True;True;True;True"
+            input_terminals_show_labels = "False;False;False;False"
+            output_fnc = "/*Begin code section*/
+xd = xa*cos(thetae_rad) + xb*cos(thetae_rad-2*pi/3) + xc*cos(thetae_rad-4*pi/3);
+xq = -xa*sin(thetae_rad) - xb*sin(thetae_rad-2*pi/3) - xc*sin(thetae_rad-4*pi/3);
+
+xd = 2*xd/3;
+xq = 2*xq/3;
+/*End code section*/"
+            output_terminals = "real xd;inherit xq;"
+            output_terminals_dimensions = "inherit;inherit"
+            output_terminals_feedthrough = "True;True"
+            output_terminals_show_labels = "False;False"
+            parameters = "real Ts;real Npp;real pi;"
+        }
+        [
+            position = 7296, 7648
+            size = 128, 128
+        ]
+
+        component src_constant Constant1 {
+            execution_rate = "Ts"
+            value = "wr_rpm"
+        }
+        [
+            position = 6800, 7200
+        ]
+
+        component src_sine "Sinusoidal Source iA" {
+            amplitude = "10"
+            execution_rate = "Ts"
+            frequency = "fe"
+            phase = "90"
+        }
+        [
+            position = 6920, 7576
+        ]
+
+        component src_sine "Sinusoidal Source iB" {
+            amplitude = "10"
+            execution_rate = "Ts"
+            frequency = "fe"
+            phase = "90-120"
+        }
+        [
+            position = 6920, 7640
+        ]
+
+        component src_sine "Sinusoidal Source iC" {
+            amplitude = "10"
+            execution_rate = "Ts"
+            frequency = "fe"
+            phase = "90-240"
+        }
+        [
+            position = 6920, 7712
+        ]
+
+        component gen_probe "Probe vD" {
+        }
+        [
+            position = 7488, 7512
+        ]
+
+        component gen_probe "Probe vQ" {
+        }
+        [
+            position = 7520, 7648
+        ]
+
+        component gen_probe "Probe vA" {
+        }
+        [
+            position = 7080, 7528
+        ]
+
+        component gen_probe "Probe vB" {
+        }
+        [
+            position = 7176, 7528
+        ]
+
+        component gen_probe "Probe vC" {
+        }
+        [
+            position = 7096, 7600
+        ]
+
+        tag Goto1 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 8216, 7040
+            size = 60, 20
+        ]
+
+        tag From1 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7256, 7112
+            size = 60, 20
+        ]
+
+        tag Goto2 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 8216, 7304
+            size = 60, 20
+        ]
+
+        tag From2 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7256, 7368
+            size = 60, 20
+        ]
+
+        tag Goto3 {
+            value = "phi_d"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7760, 7072
+            size = 60, 20
+        ]
+
+        tag Goto4 {
+            value = "phi_q"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7760, 7328
+            size = 60, 20
+        ]
+
+        tag From3 {
+            value = "phi_d"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7200, 7448
+            size = 60, 20
+        ]
+
+        tag From4 {
+            value = "phi_q"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7200, 7184
+            size = 60, 20
+        ]
+
+        tag From5 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 8480, 7272
+            size = 60, 20
+        ]
+
+        tag From6 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7256, 7112
+            size = 60, 20
+        ]
+
+        tag From7 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 8480, 7232
+            size = 60, 20
+        ]
+
+        tag Goto6 {
+            value = "thetar_deg"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7160, 7032
+            size = 60, 20
+        ]
+
+        tag From8 {
+            value = "thetar_deg"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7936, 7096
+            size = 60, 20
+        ]
+
+        tag From9 {
+            value = "thetar_deg"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7928, 7336
+            size = 60, 20
+        ]
+
+        tag From10 {
+            value = "thetar_deg"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 8480, 7200
+            size = 60, 20
+        ]
+
+        tag From12 {
+            value = "iq"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7896, 7648
+            size = 60, 20
+        ]
+
+        tag From13 {
+            value = "id"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7896, 7584
+            size = 60, 20
+        ]
+
+        tag Goto7 {
+            value = "we"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7120, 7144
+            size = 60, 20
+        ]
+
+        tag From14 {
+            value = "we"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 6816, 6896
+            size = 60, 20
+        ]
+
+        tag Goto8 {
+            value = "thetae_rad"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7040, 6896
+            size = 60, 20
+        ]
+
+        tag From15 {
+            value = "thetae_rad"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7896, 7712
+            size = 60, 20
+        ]
+
+        tag From16 {
+            value = "thetae_rad"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7136, 7680
+            size = 60, 20
+        ]
+
+        tag Goto9 {
+            value = "v_d"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7448, 7600
+            size = 60, 20
+        ]
+
+        tag Goto10 {
+            value = "v_q"
+            scope = local
+            kind = sp
+            direction = in
+        }
+        [
+            position = 7448, 7696
+            size = 60, 20
+        ]
+
+        tag From17 {
+            value = "v_d"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7392, 7040
+            size = 60, 20
+        ]
+
+        tag From18 {
+            value = "v_q"
+            scope = local
+            kind = sp
+            direction = out
+        }
+        [
+            position = 7392, 7296
+            size = 60, 20
+        ]
+
+        junction Junction4 sp
+        [
+            position = 7840, 7112
+        ]
+
+        junction Junction5 sp
+        [
+            position = 7824, 7368
+        ]
+
+        junction Junction6 sp
+        [
+            position = 8144, 7112
+        ]
+
+        junction Junction7 sp
+        [
+            position = 8136, 7352
+        ]
+
+        junction Junction8 sp
+        [
+            position = 7688, 7112
+        ]
+
+        junction Junction9 sp
+        [
+            position = 7688, 7368
+        ]
+
+        junction Junction10 sp
+        [
+            position = 7112, 7200
+        ]
+
+        junction Junction22 sp
+        [
+            position = 6976, 7200
+        ]
+
+        junction Junction23 sp
+        [
+            position = 7096, 7032
+        ]
+
+        junction Junction24 sp
+        [
+            position = 7064, 7200
+        ]
+
+        junction Junction25 sp
+        [
+            position = 7384, 7600
+        ]
+
+        junction Junction26 sp
+        [
+            position = 7384, 7696
+        ]
+
+        junction Junction27 sp
+        [
+            position = 7008, 7576
+        ]
+
+        junction Junction28 sp
+        [
+            position = 7176, 7640
+        ]
+
+        junction Junction29 sp
+        [
+            position = 7024, 7664
+        ]
+
+        connect "LUT Te.value" "Probe Te.in" as Connection554
+        connect "iD LUT.addr_y" Junction4 as Connection609
+        connect Junction4 "iQ LUT.addr_y" as Connection610
+        [
+            breakpoints = 7840, 7112; 7840, 7224
+        ]
+        connect "iD LUT.addr_z" Junction5 as Connection613
+        [
+            breakpoints = 7824, 7128; 7824, 7128
+        ]
+        connect Junction5 "iQ LUT.addr_z" as Connection614
+        [
+            breakpoints = 7824, 7368
+        ]
+        connect Sum1.out "phi_d integrator.in" as Connection616
+        connect Sum2.out "phi_q integrator.in" as Connection617
+        connect "iD LUT.value" Junction6 as Connection618
+        connect Junction6 "Probe iD.in" as Connection619
+        connect Goto1 Junction6 as Connection620
+        connect "iQ LUT.value" Junction7 as Connection621
+        connect Junction7 "Probe iQ.in" as Connection622
+        connect Goto2 Junction7 as Connection623
+        connect From1 Gain1.in as Connection624
+        connect From2 Gain2.in as Connection625
+        connect Gain2.out Sum2.in1 as Connection626
+        connect Gain1.out Sum1.in1 as Connection627
+        connect "phi_d integrator.out" Junction8 as Connection628
+        connect Junction8 Junction4 as Connection629
+        [
+            breakpoints = 7688, 7112; 7840, 7112
+        ]
+        connect Goto3 Junction8 as Connection630
+        [
+            breakpoints = 7688, 7080; 7688, 7112
+        ]
+        connect "phi_q integrator.out" Junction9 as Connection631
+        connect Junction9 Junction5 as Connection632
+        connect Goto4 Junction9 as Connection633
+        connect Product1.in From3 as Connection634
+        connect Product2.out Sum1.in2 as Connection636
+        connect Product2.in From4 as Connection637
+        connect Product1.out Sum2.in2 as Connection639
+        [
+            breakpoints = 7440, 7456; 7440, 7384
+        ]
+        connect Product1.in1 Junction10 as Connection661
+        connect Junction10 Product2.in1 as Connection662
+        [
+            breakpoints = 7112, 7200; 7112, 7200
+        ]
+        connect "LUT Te.addr_z" From5 as Connection745
+        connect "LUT Te.addr_y" From7 as Connection746
+        connect Gain3.out Junction22 as Connection779
+        connect Junction22 Gain5.in as Connection780
+        [
+            breakpoints = 6968, 7200; 6960, 7200; 6968, 7200; 6976, 7200; 6976, 7200
+        ]
+        connect "C function1.wr" Junction22 as Connection781
+        connect From8 "iD LUT.addr_x" as Connection790
+        connect From9 "iQ LUT.addr_x" as Connection791
+        connect "LUT Te.addr_x" From10 as Connection792
+        connect "C function Park-1.xd" From13 as Connection796
+        connect From12 "C function Park-1.xq" as Connection797
+        connect "Probe iA.in" "C function Park-1.xa" as Connection799
+        connect "C function Park-1.xb" "Probe iB.in" as Connection800
+        connect "Probe iC.in" "C function Park-1.xc" as Connection801
+        connect Goto6 Junction23 as Connection803
+        connect Junction23 "C function1.thetar_deg" as Connection804
+        connect "Probe thetar.in" Junction23 as Connection805
+        connect Junction10 Junction24 as Connection806
+        [
+            breakpoints = 7112, 7200; 7080, 7200
+        ]
+        connect Junction24 Gain5.out as Connection807
+        connect Goto7 Junction24 as Connection808
+        connect Integrator1.in From14 as Connection809
+        connect Goto8 Integrator1.out as Connection810
+        connect From15 "C function Park-1.thetae_rad" as Connection811
+        connect From16 "C function Park-2.thetae_rad" as Connection812
+        connect Constant1.out Gain3.in as Connection813
+        connect From18 Sum2.in as Connection820
+        connect From17 Sum1.in as Connection821
+        connect Goto9 Junction25 as Connection822
+        connect Junction25 "C function Park-2.xd" as Connection823
+        connect "Probe vD.in" Junction25 as Connection824
+        connect Goto10 Junction26 as Connection825
+        connect Junction26 "C function Park-2.xq" as Connection826
+        connect "Probe vQ.in" Junction26 as Connection827
+        connect "Sinusoidal Source iA.out" Junction27 as Connection828
+        connect Junction27 "C function Park-2.xa" as Connection829
+        connect "Probe vA.in" Junction27 as Connection830
+        connect Junction28 "C function Park-2.xb" as Connection832
+        connect "Probe vB.in" Junction28 as Connection833
+        connect "Sinusoidal Source iB.out" Junction28 as Connection837
+        [
+            breakpoints = 7016, 7640
+        ]
+        connect "Sinusoidal Source iC.out" Junction29 as Connection838
+        [
+            breakpoints = 6952, 7712; 7024, 7712
+        ]
+        connect Junction29 "C function Park-2.xc" as Connection839
+        [
+            breakpoints = 7024, 7664
+        ]
+        connect "Probe vC.in" Junction29 as Connection840
+    }
+
+    default {
+        gen_3D_lookup_table {
+            in_vec_x = "np.arange(0,3)"
+            in_vec_y = "np.arange(-1,1)"
+            in_vec_z = "np.arange(-1,1)"
+            out_vec_f_xyz = "[[[1.0, 4.0], [2.0, 5.0]], [[3.0, 6.0], [1.0, 4.0]], [[2.0, 5.0], [3.0, 6.0]]]"
+            table_impl = "Equidistant"
+            ext_mode = "Clip"
+            execution_rate = "inherit"
+        }
+
+        gen_c_function {
+            input_terminals = "real in;"
+            input_terminals_show_labels = "False;"
+            input_terminals_feedthrough = "True;"
+            input_terminals_dimensions = "inherit;"
+            output_terminals = "real out;"
+            output_terminals_show_labels = "False;"
+            output_terminals_feedthrough = "True;"
+            output_terminals_dimensions = "inherit;"
+            output_fnc = ""
+            update_fnc = ""
+            init_fnc = ""
+            global_variables = ""
+            parameters = ""
+            execution_rate = "inherit"
+        }
+
+        gen_gain {
+            gain = "1"
+            multiplication = "Element-wise(K.*u)"
+            _tunable = "False"
+            execution_rate = "inherit"
+        }
+
+        gen_integrator {
+            show_reset = "none"
+            reset_type = "asynchronous"
+            show_init_condition = "internal"
+            init_value = "0"
+            limit_output = "False"
+            limit_upper = "inf"
+            limit_lower = "-inf"
+            show_state = "False"
+            state_port_type = "inherit"
+            execution_rate = "inherit"
+        }
+
+        gen_integrator {
+            show_reset = "none"
+            reset_type = "asynchronous"
+            show_init_condition = "internal"
+            init_value = "0"
+            limit_output = "False"
+            limit_upper = "inf"
+            limit_lower = "-inf"
+            show_state = "False"
+            state_port_type = "inherit"
+            execution_rate = "inherit"
+        }
+
+        gen_probe {
+            addr = "0"
+            override_signal_name = "False"
+            signal_name = ""
+            signal_type = "generic"
+            streaming_en = "False"
+            streaming_er_idx = "0"
+            execution_rate = "inherit"
+        }
+
+        gen_product {
+            signs = "2"
+            execution_rate = "inherit"
+        }
+
+        gen_sum {
+            signs = "2"
+            execution_rate = "inherit"
+        }
+
+        src_constant {
+            value = "1"
+            signal_type = "real"
+            execution_rate = "100e-6"
+            _tunable = "False"
+        }
+
+        src_sine {
+            amplitude = "1"
+            dc_offset = "0"
+            frequency = "50"
+            phase = "0"
+            execution_rate = "100e-6"
+            _tunable = "False"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        Ts = 1e-6
+        
+        pi = 3.1416
+        
+        # Load LUT from .npz python file
+        data = np.load(r'C:\Users\crist\workspace\usemac\pmsm_dev\TyphoonHIL\LUT_prueba.npz')
+        LUT_id = data['LUT_id']
+        LUT_iq = data['LUT_iq']
+        LUT_Te = data['LUT_Te']
+        phidVec = data['phidVec']
+        phiqVec = data['phiqVec']
+        thetaVec = data['thetaVec']
+        idVec = data['idVec']
+        iqVec = data['iqVec']
+        
+        Rs = 0.07
+        Npp = 4
+        wr_rpm = 1000
+        fe = Npp*wr_rpm/60
+    ENDCODE
+}

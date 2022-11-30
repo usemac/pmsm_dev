@@ -1,0 +1,278 @@
+version = 4.2
+
+//
+// Saved by sw version: 2022.1 SP1
+// Save timestamp: 28-Oct-2022 @ 02:12:20 PM
+//
+
+model "lut_test" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 2
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        reset_analog_outputs_on_sim_stop = True
+        reset_digital_outputs_on_sim_stop = True
+        vhil_adio_loopback = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
+        ground_scope_core = False
+        cce_platform = "generic"
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+        tunable_params = "component defined"
+        sp_compiler_type = "C compiler"
+        sig_stim = "off"
+        export_resource_list = ""
+        export_dependency_list = ""
+        export_out_file = ""
+        export_lock_top_level = True
+        export_encrypt_library = True
+        export_encrypt_resources = True
+    }
+
+    component Subsystem Root {
+        component gen_3D_lookup_table "iD LUT" {
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_id"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 8040, 7112
+        ]
+
+        component gen_probe "Probe iD" {
+        }
+        [
+            position = 8160, 7112
+        ]
+
+        component src_scada_input "SCADA Input PhiD" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7680, 7168
+        ]
+
+        component src_scada_input "SCADA Input PhiQ" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7680, 7240
+        ]
+
+        component src_scada_input "SCADA Input ThetaR" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7680, 7096
+        ]
+
+        component gen_3D_lookup_table "iQ LUT" {
+            in_vec_x = "thetaVec"
+            in_vec_y = "phidVec"
+            in_vec_z = "phiqVec"
+            out_vec_f_xyz = "LUT_iq"
+            table_impl = "Non-equidistant"
+        }
+        [
+            position = 8040, 7224
+        ]
+
+        component gen_probe "Probe iQ" {
+        }
+        [
+            position = 8168, 7224
+        ]
+
+        component gen_3D_lookup_table "LUT Te" {
+            ext_mode = "Linear"
+            in_vec_x = "thetaVec"
+            in_vec_y = "idVec"
+            in_vec_z = "iqVec"
+            out_vec_f_xyz = "LUT_Te"
+        }
+        [
+            position = 8040, 7336
+        ]
+
+        component gen_probe "Probe Te" {
+        }
+        [
+            position = 8168, 7336
+        ]
+
+        component src_scada_input "SCADA Input iD" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7680, 7336
+        ]
+
+        component src_scada_input "SCADA Input iQ" {
+            execution_rate = "Ts"
+            unit = ""
+        }
+        [
+            position = 7680, 7408
+        ]
+
+        junction Junction1 sp
+        [
+            position = 7856, 7096
+        ]
+
+        junction Junction2 sp
+        [
+            position = 7840, 7112
+        ]
+
+        junction Junction3 sp
+        [
+            position = 7824, 7128
+        ]
+
+        junction Junction4 sp
+        [
+            position = 7856, 7208
+        ]
+
+        connect "iD LUT.value" "Probe iD.in" as Connection552
+        connect "iQ LUT.value" "Probe iQ.in" as Connection553
+        connect "LUT Te.value" "Probe Te.in" as Connection554
+        connect "iD LUT.addr_x" Junction1 as Connection581
+        connect "SCADA Input PhiD.out" Junction2 as Connection584
+        [
+            breakpoints = 7760, 7168; 7760, 7112
+        ]
+        connect Junction2 "iD LUT.addr_y" as Connection585
+        connect "SCADA Input PhiQ.out" Junction3 as Connection587
+        [
+            breakpoints = 7784, 7240; 7784, 7128
+        ]
+        connect Junction3 "iD LUT.addr_z" as Connection588
+        connect Junction3 "iQ LUT.addr_z" as Connection599
+        [
+            breakpoints = 7824, 7128; 7824, 7240
+        ]
+        connect "iQ LUT.addr_y" Junction2 as Connection600
+        [
+            breakpoints = 7840, 7224
+        ]
+        connect "LUT Te.addr_y" "SCADA Input iD.out" as Connection601
+        connect "LUT Te.addr_z" "SCADA Input iQ.out" as Connection602
+        [
+            breakpoints = 7784, 7352; 7784, 7408
+        ]
+        connect "SCADA Input ThetaR.out" Junction1 as Connection606
+        [
+            breakpoints = 7832, 7096; 7864, 7096
+        ]
+        connect Junction1 Junction4 as Connection608
+        [
+            breakpoints = 7856, 7096
+        ]
+        connect Junction4 "iQ LUT.addr_x" as Connection609
+        [
+            breakpoints = 7856, 7208
+        ]
+        connect "LUT Te.addr_x" Junction4 as Connection610
+    }
+
+    logically_deleted {
+        "LUT Te"
+        "Probe Te"
+        "Connection554"
+        "Connection601"
+        "Connection602"
+        "Connection610"
+    }
+
+    default {
+        gen_3D_lookup_table {
+            in_vec_x = "np.arange(0,3)"
+            in_vec_y = "np.arange(-1,1)"
+            in_vec_z = "np.arange(-1,1)"
+            out_vec_f_xyz = "[[[1.0, 4.0], [2.0, 5.0]], [[3.0, 6.0], [1.0, 4.0]], [[2.0, 5.0], [3.0, 6.0]]]"
+            table_impl = "Equidistant"
+            ext_mode = "Clip"
+            execution_rate = "inherit"
+        }
+
+        gen_probe {
+            addr = "0"
+            override_signal_name = "False"
+            signal_name = ""
+            signal_type = "generic"
+            streaming_en = "False"
+            streaming_er_idx = "0"
+            execution_rate = "inherit"
+        }
+
+        src_scada_input {
+            addr = "0"
+            format = "real"
+            override_signal_name = "False"
+            signal_name = ""
+            signal_type = "real"
+            min = "-1e6"
+            max = "1e6"
+            def_value = "0"
+            unit = " "
+            execution_rate = "100e-6"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        Ts = 1e-3
+        
+        # Load LUT from .npz python file
+        data = np.load(r'C:\Users\crist\workspace\usemac\pmsm_dev\TyphoonHIL\LUT_prueba.npz')
+        LUT_id = data['LUT_id']
+        LUT_iq = data['LUT_iq']
+        LUT_Te = data['LUT_Te']
+        phidVec = data['phidVec']
+        phiqVec = data['phiqVec']
+        thetaVec = data['thetaVec']
+        idVec = data['idVec']
+        iqVec = data['iqVec']
+    ENDCODE
+}
