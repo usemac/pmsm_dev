@@ -1,3 +1,6 @@
 eq_i_a =  l_aa*di_a + l_ab*di_b + l_ac*di_c - v_a + R_s * i_a + phi_ar * omega_r    
 eq_i_b =  l_ba*di_a + l_bb*di_b + l_bc*di_c - v_b + R_s * i_b + phi_br * omega_r
 eq_i_c =  l_ca*di_a + l_cb*di_b + l_cc*di_c - v_c + R_s * i_c + phi_cr * omega_r
+
+
+
