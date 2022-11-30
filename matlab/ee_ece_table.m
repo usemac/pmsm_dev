@@ -13712,7 +13712,4 @@ fluxD  = permute(reshape(data(:,2),[nx,nIq,nId]),[3,2,1]);
 fluxQ  = permute(reshape(data(:,3),[nx,nIq,nId]),[3,2,1]);
 flux0  = permute(reshape(data(:,4),[nx,nIq,nId]),[3,2,1]);
 torque = permute(reshape(data(:,5),[nx,nIq,nId]),[3,2,1]);
-
-save('pmsm_data','idVec','iqVec','angleVec','fluxD','fluxQ','flux0','torque')
 clear data nIq nId nx
-N = 4;
